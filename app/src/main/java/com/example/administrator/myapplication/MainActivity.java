@@ -2,11 +2,15 @@ package com.example.administrator.myapplication;
 
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import java.util.Timer;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -15,14 +19,34 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Intent mServiceIntent = new Intent(this, Voice.class);
+        Intent mServiceIntent = new Intent(this, NoiseIntentService.class);
         startService(mServiceIntent);
+
 
         IntentFilter alterIntentFilter=new IntentFilter(Constants.NOISE_ALERT);
         AlertReceiver alertReceiver=new AlertReceiver();
         LocalBroadcastManager.getInstance(this).registerReceiver(alertReceiver,alterIntentFilter);
+
+//        TimerBackGroundTask backGroundTask = new TimerBackGroundTask();
+//        backGroundTask.execute(mServiceIntent);
+
     }
 
+//    private class TimerBackGroundTask extends AsyncTask <Intent,Void, String>{
+//
+//        @Override
+//        protected String doInBackground(Intent... params) {
+//            try {
+//                Thread.sleep(3000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            startService(params[0]);
+//            Log.d("dddddddddd","dddddddddddd");
+//
+//            return null;
+//        }
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

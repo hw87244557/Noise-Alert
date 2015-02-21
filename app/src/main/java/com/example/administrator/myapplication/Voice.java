@@ -6,8 +6,10 @@ import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.media.audiofx.AutomaticGainControl;
+
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+
 
 /**
  * Created by Administrator on 2015/2/14 0014.
@@ -18,7 +20,7 @@ public class Voice extends IntentService {
     static final int BUFFER_SIZE = AudioRecord.getMinBufferSize(SAMPLE_RATE_IN_HZ,
             AudioFormat.CHANNEL_IN_DEFAULT, AudioFormat.ENCODING_PCM_16BIT);
     AudioRecord mAudioRecord;
-    AutomaticGainControl ACG;
+    //AutomaticGainControl ACG;
     Object mLock;
     boolean isGetVoiceRun;
     public Voice(){
@@ -35,6 +37,7 @@ public class Voice extends IntentService {
     protected void onHandleIntent(Intent workIntent){
         mAudioRecord.startRecording();
         short[] buffer = new short[BUFFER_SIZE];
+
         while (isGetVoiceRun) {
             int r = mAudioRecord.read(buffer, 0, BUFFER_SIZE);
             long v = 0;
@@ -55,9 +58,12 @@ public class Voice extends IntentService {
                     e.printStackTrace();
                 }
             }
+            isGetVoiceRun = workIntent.getBooleanExtra("runCommand",true);
         }
         mAudioRecord.stop();
         mAudioRecord.release();
         mAudioRecord = null;
     }
+
+
 }
