@@ -48,7 +48,7 @@ public class NoiseIntentService extends IntentService {
         while (System.currentTimeMillis()-startTime<10000) {
             int r = mAudioRecord.read(buffer, 0, BUFFER_SIZE);
             long v = 0;
-            for (int i = 0; i < buffer.length; i++) {
+            for (int i = 0; i < r; i++) {
                 String[] strings={Double.toString(buffer[i])};
                 listStr.add(strings);
                 v += buffer[i] * buffer[i];
