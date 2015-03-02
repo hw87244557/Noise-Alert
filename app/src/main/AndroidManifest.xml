@@ -27,6 +27,9 @@
         <service
             android:name=".NoiseIntentService"
             android:exported="false" />
+        <service
+            android:name=".NoiseWindowService"
+            android:exported="false" />
     </application>
 
 </manifest>

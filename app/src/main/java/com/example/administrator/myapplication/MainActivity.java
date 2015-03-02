@@ -19,14 +19,19 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Intent mServiceIntent = new Intent(this, NoiseIntentService.class);
+        Intent mServiceIntent = new Intent(this, NoiseWindowService.class);
         startService(mServiceIntent);
 
 
         IntentFilter alterIntentFilter=new IntentFilter(Constants.NOISE_ALERT);
         AlertReceiver alertReceiver=new AlertReceiver();
         LocalBroadcastManager.getInstance(this).registerReceiver(alertReceiver,alterIntentFilter);
-
+        try{
+            Thread.sleep(6000);
+        } catch(InterruptedException e){
+            e.printStackTrace();
+        }
+        Log.d("Hello","hello");
 //        TimerBackGroundTask backGroundTask = new TimerBackGroundTask();
 //        backGroundTask.execute(mServiceIntent);
 
