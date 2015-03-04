@@ -33,9 +33,10 @@ public class NoiseWindowService extends IntentService {
     AudioRecord mAudioRecord;
     //AutomaticGainControl ACG;
     Object mLock;
+    boolean isGetAudio=true;
 
     public NoiseWindowService(){
-        super("NoiseIntentService");
+        super("NoiseWindowService");
         mAudioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,
                 SAMPLE_RATE_IN_HZ, AudioFormat.CHANNEL_IN_DEFAULT,
                 AudioFormat.ENCODING_PCM_16BIT, BUFFER_SIZE);
@@ -43,11 +44,11 @@ public class NoiseWindowService extends IntentService {
         //ACG=AutomaticGainControl.create(mAudioRecord.getAudioSessionId());
         //ACG.setEnabled(false);
     }
+
     @Override
     protected void onHandleIntent(Intent intent) {
         mAudioRecord.startRecording();
         short[] buffer = new short[BUFFER_SIZE];
-        boolean isGetAudio=true;
         AudioWindow audioWindow=new AudioWindow(THRESHOLD,WINDOW_WIDTH,SAMPLE_RATE_IN_HZ);
         while (isGetAudio) {
             int r = mAudioRecord.read(buffer, 0, BUFFER_SIZE);

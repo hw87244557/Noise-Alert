@@ -1,69 +1,72 @@
 package com.example.administrator.myapplication;
 
-import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
-import android.media.audiofx.AutomaticGainControl;
-
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-
 /**
- * Created by Administrator on 2015/2/14 0014.
+ * Created by WeiHuang on 3/3/2015.
  */
-public class Voice extends IntentService {
+public class NoiseSleepRunable implements Runnable {
     private static final String TAG = "AudioRecord";
-    static final int SAMPLE_RATE_IN_HZ = 8000;
+    static final int SAMPLE_RATE_IN_HZ = 16000;
+    static final short THRESHOLD = 4000;
+    static final int NUM_OVER_THRESHOLD = 1000;
+    static final int WINDOW_WIDTH = 5;//second
     static final int BUFFER_SIZE = AudioRecord.getMinBufferSize(SAMPLE_RATE_IN_HZ,
             AudioFormat.CHANNEL_IN_DEFAULT, AudioFormat.ENCODING_PCM_16BIT);
     AudioRecord mAudioRecord;
+    boolean isGetAudio = true;
     //AutomaticGainControl ACG;
     Object mLock;
-    boolean isGetVoiceRun;
-    public Voice(){
-        super("Voice");
+    Context context;
+    public  NoiseSleepRunable(Context ctxt){
+        context=ctxt;
+    }
+
+    public void terminate(){
+        isGetAudio=false;
+    }
+    @Override
+    public void run(){
         mAudioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,
                 SAMPLE_RATE_IN_HZ, AudioFormat.CHANNEL_IN_DEFAULT,
                 AudioFormat.ENCODING_PCM_16BIT, BUFFER_SIZE);
         mLock = new Object();
-        //ACG=AutomaticGainControl.create(mAudioRecord.getAudioSessionId());
-        //ACG.setEnabled(false);
-        isGetVoiceRun = true;
-    }
-    @Override
-    protected void onHandleIntent(Intent workIntent){
+
         mAudioRecord.startRecording();
         short[] buffer = new short[BUFFER_SIZE];
 
-        while (isGetVoiceRun) {
+        AudioWindow audioWindow = new AudioWindow(THRESHOLD, WINDOW_WIDTH, SAMPLE_RATE_IN_HZ);
+        while (isGetAudio) {
             int r = mAudioRecord.read(buffer, 0, BUFFER_SIZE);
-            long v = 0;
-            for (int i = 0; i < buffer.length; i++) {
-                v += buffer[i] * buffer[i];
+            long approximateTime = System.currentTimeMillis();
+            for (int i = 0; i < r; i++) {
+                audioWindow.push(buffer[i], approximateTime);
             }
-            double mean = v / (double) r;
-            double volume = 10 * Math.log10(mean);
-            if(volume>60) {
+            Log.d("Num over threshold", Integer.toString(audioWindow.num_over_threshold));
+            if (audioWindow.num_over_threshold > NUM_OVER_THRESHOLD && audioWindow.isFull()) {
                 Intent localIntent = new Intent(Constants.NOISE_ALERT);
-                LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
+                LocalBroadcastManager.getInstance(context).sendBroadcast(localIntent);
+                Log.d("Start Time", Long.toString(audioWindow.getTimeStamp()));
+                isGetAudio = false;
             }
-            Log.d(TAG, "Db:" + volume);
             synchronized (mLock) {
                 try {
-                    mLock.wait(100);
+                    mLock.wait(20);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-            isGetVoiceRun = workIntent.getBooleanExtra("runCommand",true);
         }
+        Log.d("report", "finished");
         mAudioRecord.stop();
         mAudioRecord.release();
         mAudioRecord = null;
+
     }
-
-
 }

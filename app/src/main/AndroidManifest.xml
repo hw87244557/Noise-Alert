@@ -22,13 +22,10 @@
             </intent-filter>
         </activity>
         <service
-            android:name="Voice"
-            android:exported="false" />
-        <service
-            android:name=".NoiseIntentService"
-            android:exported="false" />
-        <service
             android:name=".NoiseWindowService"
+            android:exported="false" />
+        <service
+            android:name=".NoiseSleepService"
             android:exported="false" />
     </application>
 
