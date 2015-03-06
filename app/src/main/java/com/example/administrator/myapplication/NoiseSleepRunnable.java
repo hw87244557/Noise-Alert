@@ -11,7 +11,7 @@ import android.util.Log;
 /**
  * Created by WeiHuang on 3/3/2015.
  */
-public class NoiseSleepRunable implements Runnable {
+public class NoiseSleepRunnable implements Runnable {
     private static final String TAG = "AudioRecord";
     static final int SAMPLE_RATE_IN_HZ = 16000;
     static final short THRESHOLD = 4000;
@@ -24,7 +24,7 @@ public class NoiseSleepRunable implements Runnable {
     //AutomaticGainControl ACG;
     Object mLock;
     Context context;
-    public  NoiseSleepRunable(Context ctxt){
+    public NoiseSleepRunnable(Context ctxt){
         context=ctxt;
     }
 
@@ -48,11 +48,13 @@ public class NoiseSleepRunable implements Runnable {
             for (int i = 0; i < r; i++) {
                 audioWindow.push(buffer[i], approximateTime);
             }
-            Log.d("Num over threshold", Integer.toString(audioWindow.num_over_threshold));
+            Log.d("Num over threshold", Long.toString(audioWindow.num_over_threshold));
             if (audioWindow.num_over_threshold > NUM_OVER_THRESHOLD && audioWindow.isFull()) {
                 Intent localIntent = new Intent(Constants.NOISE_ALERT);
                 LocalBroadcastManager.getInstance(context).sendBroadcast(localIntent);
                 Log.d("Start Time", Long.toString(audioWindow.getTimeStamp()));
+                Log.d("Num over Threshold",Integer.toString(audioWindow.getNumOverThreshold()));
+                Log.d("Average",Integer.toString(audioWindow.getAverageAmplitude()));
                 isGetAudio = false;
             }
             synchronized (mLock) {

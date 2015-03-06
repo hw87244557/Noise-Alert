@@ -56,7 +56,7 @@ public class NoiseWindowService extends IntentService {
             for (int i = 0; i < r; i++) {
                 audioWindow.push(buffer[i],approximateTime);
             }
-            Log.d("Num over threshold",Integer.toString(audioWindow.num_over_threshold));
+            Log.d("Num over threshold",Long.toString(audioWindow.num_over_threshold));
             if(audioWindow.num_over_threshold>NUM_OVER_THRESHOLD && audioWindow.isFull()){
                 Intent localIntent = new Intent(Constants.NOISE_ALERT);
                 LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
@@ -80,7 +80,8 @@ public class NoiseWindowService extends IntentService {
         audioWindow.setIterator();
         int idx_pcmdata=0;
         while (audioWindow.hasNext()){
-            pcmdata[idx_pcmdata++]=audioWindow.getNext();
+            String[] temp=audioWindow.getNext();
+            pcmdata[idx_pcmdata++]=Short.parseShort(temp[0]);
         }
         try {
             PCMtoFile(pcmdata,SAMPLE_RATE_IN_HZ);
@@ -91,7 +92,8 @@ public class NoiseWindowService extends IntentService {
         List<String[]> listStr=new ArrayList<>();
         audioWindow.setIterator();
         while (audioWindow.hasNext()){
-            String[] str={Short.toString(audioWindow.getNext())};
+            String[] temp=audioWindow.getNext();
+            String[] str={temp[0]};
             listStr.add(str);
         }
         try {

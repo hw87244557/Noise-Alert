@@ -22,20 +22,23 @@ public class MainActivity extends ActionBarActivity {
 //        Intent mServiceIntent = new Intent(this, NoiseWindowService.class);
 //        startService(mServiceIntent);
 //
-        NoiseSleepRunable runable=new NoiseSleepRunable(this.getApplicationContext());
-        Thread thread=new Thread(runable);
+//        NoiseSleepRunable runnable=new NoiseSleepRunable(this.getApplicationContext());
+//        Thread thread=new Thread(runnable);
+//        thread.start();
+        NoiseAwakeRunnable runnable=new NoiseAwakeRunnable(this.getApplicationContext());
+        Thread thread=new Thread(runnable);
         thread.start();
 
         IntentFilter alterIntentFilter=new IntentFilter(Constants.NOISE_ALERT);
         AlertReceiver alertReceiver=new AlertReceiver();
         LocalBroadcastManager.getInstance(this).registerReceiver(alertReceiver,alterIntentFilter);
-//        try {
-//                Thread.sleep(10000);
-//                runable.terminate();
-//                thread.join();
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
+        try {
+                Thread.sleep(20000);
+                runnable.requestRecord(System.currentTimeMillis()-7000);
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 //        TimerBackGroundTask backGroundTask = new TimerBackGroundTask();
 //        backGroundTask.execute(mServiceIntent);
 

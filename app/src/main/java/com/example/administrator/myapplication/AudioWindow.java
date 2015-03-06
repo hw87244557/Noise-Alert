@@ -8,6 +8,7 @@ public class AudioWindow {
     short threshold;
     int width;
     int num_of_nodes;
+    long cumulate;
     SampleNode top;
     SampleNode bottom;
     SampleNode iterator;
@@ -17,14 +18,16 @@ public class AudioWindow {
         bottom=null;
         num_of_nodes=0;
         num_over_threshold=0;
+        cumulate=0;
         this.threshold=threshold;
         width=seconds*sampleRate;
     }
 
     public void push(short a,long t){
         SampleNode tempNode=new SampleNode(a,t);
-        if(a>threshold)
+        if(Math.abs(a)>threshold)
             num_over_threshold++;
+        cumulate=cumulate+Math.abs(a);
         if(num_of_nodes==0){
             top=bottom=tempNode;
         }else{
@@ -43,22 +46,22 @@ public class AudioWindow {
             return false;
     }
 
-    public short pop(){
+    public void pop(){
         if(!isEmpty()) {
             short temp = top.value;
             top = top.next;
             num_of_nodes--;
-            if (temp > threshold)
+            cumulate=cumulate-Math.abs(temp);
+            if (Math.abs(temp) > threshold){
                 num_over_threshold--;
-            return temp;
-        }else {
-            return 0;
+            }
         }
     }
 
     public boolean isFull(){
-        if(num_of_nodes==width)
+        if(num_of_nodes==width){
             return true;
+        }
         else
             return false;
     }
@@ -73,20 +76,23 @@ public class AudioWindow {
         else
             return false;
     }
-    public short getNext(){
+    public String[] getNext(){
         iterator=iterator.next;
-        return iterator.value;
+        String[] strs={Short.toString(iterator.value),Long.toString(iterator.timeMills)};
+        return strs;
     }
 
     public long getTimeStamp(){
-        return top.timemills;
+        return top.timeMills;
     }
+    public int getNumOverThreshold(){ return num_over_threshold;}
+    public int getAverageAmplitude(){ return (int)(cumulate/((long)num_of_nodes));}
     private class SampleNode{
         short value;
-        long timemills;
+        long timeMills;
         SampleNode next;
         public SampleNode(short v,long t){
-            timemills=t;
+            timeMills=t;
             value=v;
         }
     }
